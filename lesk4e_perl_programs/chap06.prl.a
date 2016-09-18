@@ -1,0 +1,87 @@
+#!/usr/bin/perl
+#helwheel.pl -- draw helical wheel
+#usage: echo DVAGHGQDILIRLFKSH | helwheel.prl > output.ps
+# or    echo 20DVAGHGQDILIRLFKSH | helwheel.prl > output.ps
+#       the numerical prefix sets the first residue number
+
+# The output of this program is in PostScript (TM), 
+#      a general-purpose graphical language
+
+# The next section prints a header for the PostScript file
+
+print <<EOF;
+%!PS-Adobe-
+%%BoundingBox: (atend)
+%1 0 0 setrgbcolor
+%newpath 
+%37.5 161 moveto 557.5 161 lineto 557.5 681 lineto 37.5 681 lineto
+%closepath stroke
+297.5 421. translate 2 setlinewidth 1 setlinecap
+/Helvetica findfont 20 scalefont setfont 0 0 moveto
+EOF
+
+#  Define fonts to associate with each amino acid
+
+$font{"G"} = "Helvetica";      $font{"A"} = "Helvetica";      $font{"S"} = "Helvetica";
+$font{"T"} = "Helvetica";      $font{"C"} = "Helvetica";      $font{"V"} = "Helvetica";
+$font{"I"} = "Helvetica";      $font{"L"} = "Helvetica";      $font{"F"} = "Helvetica";
+$font{"Y"} = "Helvetica";      $font{"P"} = "Helvetica";      $font{"M"} = "Helvetica";
+$font{"W"} = "Helvetica";      $font{"H"} = "Helvetica-Bold"; $font{"N"} = "Helvetica-Bold";
+$font{"Q"} = "Helvetica-Bold"; $font{"D"} = "Helvetica-Bold"; $font{"E"} = "Helvetica-Bold"; 
+$font{"K"} = "Helvetica-Bold"; $font{"R"} = "Helvetica-Bold";
+
+$_= <>;                                     #  read line of input
+chop();$_ =~ s/\s//g;                       #  remove terminal carriage return and blanks
+
+if ($_ =~ s/^(\d+)//)                       #  if input begins with integer
+     {$resno = $1;}                         #  extract it as initial residue number
+else {$resno = 1}                           #  if not, set initial residue number = 1
+
+$radius = 50;                               #  initialize values for radius,
+$x = 0; $y = -50; $theta = -90;             #  x, y and angle theta
+
+#  print light gray spiral arc as succession of line segments, 10 per residue
+   
+$npoints = 10*(length($_) - 1);
+
+print "0.8 0.8 0.8 setrgbcolor\n";          #  set colour to light gray
+print "newpath\n";                          #  draw spiral arc
+printf("%8.3f %8.3f moveto\n",$x,$y);
+foreach $d (1 .. $npoints) {                #  10 points per residue
+    $theta += 10; $radius += 0.6;           #  increase radius and theta
+    $x = $radius*cos($theta*0.01747737);    #  calculate new value of x
+    $y = $radius*sin($theta*0.01747737);    #    and y
+    printf("%8.3f %8.3f lineto\n",$x,$y);
+}                                    
+print "stroke\n";
+
+#  print residues and residue numbers
+
+$radius = 50;                               #  reinitialize values for radius,
+$x = 0; $y = -50; $theta = -90;             #  x, y and angle theta
+print "0 setgray\n";                        #  set colour to black
+
+foreach (split ("",$_)) {                   #  loop over characters from input line
+    print "/$font{$_} findfont ";           #  set font appropriate
+    print "20 scalefont setfont\n";         #  for this amino acid
+    printf("%8.3f %8.3f moveto\n",$x,$y);   #  move to current point
+    print " ($resno$_) stringwidth";        #  adjust position to center residue
+    print " pop -0.5 mul -7 rmoveto\n";     #     identification on point on spiral
+    print " ($resno$_) show\n";             #  print residue number and id
+    print "% $theta $resno$_\n";             
+    $theta += 100; $radius += 6;            #  set new values of angle, radius
+    $x = $radius*cos($theta*0.01747737);    #  compute new values of x 
+    $y = $radius*sin($theta*0.01747737);    #     and y
+    $resno++;                               #  increase residue number
+}
+
+print "showpage\n";                         #  postscript signals to
+print "%%BoundingBox:";                     #  print
+$xl = 297.5 - 1.05*$radius;                 #   x 
+$xr = 297.5 + 1.05*$radius;                 #    and
+$yb = 421.  - 1.05*$radius;                 #     y
+$yt = 421.  + 1.05*$radius;                 #      limits 
+printf("%8.3f %8.3f %8.3f %8.3f\n",$xl,$xr,$yb,$yt); 
+
+print "showpage\n";    
+print "%%EOF\n";                            #  and wind up
