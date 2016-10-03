@@ -24,8 +24,12 @@ radius <- radius + seq_along(theta)*0.6 # The radius will increase linearly from
 x <- radius*cos(theta*pi/180) # Translate polar coordinates to cartesian-x coordinates
 y <- radius*sin(theta*pi/180) # Translate polar coordinates to cartesian-y coordinates
 
-par(pty="s")    # Set parameters to draw a square plot (ratio of x to y = 1)
-plot(x, y, 'l') # Draw the x, y coordinates joined by lines
+par(pty="s",
+    oma=c(0, 0, 0, 0),
+    mar=c(0, 0, 0, 0))    # Set parameters to draw a square plot (ratio of x to y = 1)
+plot(x, y, # Draw the x, y coordinates...
+     'l',  # ...joined by lines...
+     axes=FALSE, ann = FALSE) #...without axes and ticks.
 
 for (i in seq_along(input)) {       # For every residue in the input...
   j <- (i-1)*10 + 1                 # Find the index corresponding to its cartesian coordinate (every 10 points starting from 1)
