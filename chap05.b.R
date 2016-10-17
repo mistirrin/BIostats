@@ -1,5 +1,4 @@
 #DENDOGRAM
-rm(list = ls())
 tree <- "((A(CD))(B(E(G(IJ)))))" # SET NEWICK TREE
 #tree <- "(A((BC)D)(EF))"
 tree <- substr(tree, 1, nchar(tree) - 1) # REMOVE LAST CHARACTER
@@ -20,6 +19,7 @@ levels <- levels + 3 # ADD THREE MORE LEVELS
 
 w <- (length(entities)-1) # THE WIDTH EQUALS THE AMOUNT OF LETTERS MINUS ONE
 h <- levels # THE HEIGHT EQUALS THE LEVELS CALCULATED
+par(pty="s") # DRAW A SQUARE PLOT
 plot(1, type="n", # CREATE AN EMPTY PLOT
      xlab="", ylab="", # WITH NO X/Y LABS
      xaxt = "n", yaxt = "n", # AND NO X/Y AXES
